@@ -1,0 +1,131 @@
+<html>
+
+<head>
+    <title>听音练习</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta charset="UTF-8" />
+    <script type="text/javascript" src="js/phaser.js"></script>
+    <script type="text/javascript" src="js/main.js"></script>
+</head>
+<style>
+    #control {
+        margin: auto;
+        width: 50%;
+        padding: 10px;
+        font-size: 40px;
+        text-align: center;
+    }
+
+    #input_step {
+        width: 5pc;
+        height: 40px;
+        font-size: 40px;
+    }
+
+    #btn_play {
+        width: 20pc;
+        font-size: 40px;
+    }
+
+    #div_step_name {
+        font-size: 50px;
+        color: lightskyblue;
+    }
+</style>
+
+<body>
+    <div id="gameDiv"> </div>
+    <div id="control">
+        半音间隔 <input type="number" value="1" min="1" max="12" id="input_step" onchange="show_step_name()" />
+        <div id="div_step_name"></div>
+        <button id="btn_play" onclick="play_tune()">播放</button>
+    </div>
+
+    <script lang="javascript">
+        const inputStep = document.getElementById("input_step");
+        const btnPlay = document.getElementById("btn_play");
+        const divStepName = document.getElementById("div_step_name");
+        var playing = false;
+
+        var stepNameMap = {
+            "1": "小二度",
+            "2": "大二度",
+            "3": "小三度",
+            "4": "大三度",
+            "5": "纯四度",
+            "6": "增四度 - 减五度",
+            "7": "纯五度",
+            "8": "小六度",
+            "9": "大六度",
+            "10": "小七度",
+            "11": "大七度",
+            "12": "纯八度"
+        };
+
+        /*
+         * Play a tune sequence.
+         * tunes: [{"note": 32, "length": 1000}, {"note": 33, "length": 500}]
+         * onfinish: the callback when all notes are finished
+         */
+        function play_tune_sequence(tunes, onfinish) {
+            function play_tune_internal(tunes, index) {
+                var item = tunes[index];
+                play_note(item.note);
+                if (index < tunes.length - 1) {
+                    setTimeout(function () {
+                        play_tune_internal(tunes, index + 1);
+                    }, item.length);
+                } else {
+                    setTimeout(onfinish, item.length);
+                }
+            }
+            play_tune_internal(tunes, 0);
+        }
+
+        function play_tune() {
+            playing = !playing;
+
+            function play_random_sequence() {
+                if (!playing)
+                    return;
+
+                var step = parseInt(inputStep.value, 10);
+                var start = parseInt(Math.random() * 88, 10) + 1;
+                var end = start + step;
+                // avoid out of range
+                if (end > 88) {
+                    end = 88;
+                    start = end - step;
+                }
+
+                var notes = [
+                    { note: start, length: 1000 },
+                    { note: start, length: 500 },
+                    { note: end, length: 500 },
+                    { note: start, length: 2000 }
+                ];
+
+                play_tune_sequence(notes, play_random_sequence);
+            }
+
+            if (playing) {
+                btnPlay.innerText = "停止";
+                play_random_sequence();
+            } else {
+                btnPlay.innerText = "播放";
+            }
+        }
+
+        function show_step_name() {
+            var step = inputStep.value;
+            var text = stepNameMap[step];
+            divStepName.innerText = text;
+        }
+
+        show_step_name();
+    </script>
+</body>
+
+</html>
