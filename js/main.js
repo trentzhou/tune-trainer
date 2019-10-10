@@ -1,8 +1,10 @@
 var game = new Phaser.Game(0, 0, Phaser.AUTO, 'gameDiv', { preload: preload, create: create, update: update, })
+
 var notes = null;
 
 function preload() {
     game.load.audio('notes', ['assets/aud/keys.mp3', 'assets/aud/keys.ogg'])
+    game.stage.disableVisibilityChange = true;
 }
 
 function create() {
@@ -15,6 +17,7 @@ function create() {
 }
 
 function update() {
+    game.paused = false;
 }
 
 function play_note(audio_tag) {
